@@ -5,6 +5,9 @@ import time
 import requests
 
 from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 from SendEmail import BaseEmail
 from merge_photos import read_csv, write_csv
@@ -21,7 +24,7 @@ TENNIS_URL = 'https://www.google.com/search?q=tennis'
 
 def main():
     print(f"CHECKING NOW {datetime.datetime.now()}")
-    # check_game_finished()
+    check_game_finished()
     check_one_box()
 
 
@@ -64,8 +67,15 @@ def check_one_box():
     onebox_notified = get_onebox_notified()
 
     page_source = ''
-    for tab_index in range(1, 6):
-        driver.find_element_by_xpath(xpath.format(tab_index=tab_index)).click()
+    divs = [
+        ('Men', 'Singles'),
+        ('Women', 'Singles'),
+        ('Men', 'Doubles'),
+        ('Women', 'Doubles'),
+        ('Mixed', 'Doubles'),
+    ]
+    for a, b in divs:
+        WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, f"//span[@jsslot]//span//span[contains(., '{a}') and contains(., '{b}')]"))).click()
         time.sleep(1)
         page_source += driver.page_source
 
