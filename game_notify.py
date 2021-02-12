@@ -46,7 +46,7 @@ def get_onebox_notified():
 
 def check_game_finished():
     r = requests.get(
-        f'https://prod-scores-api.ausopen.com/year/2021/period/MD/day/{4}/results',
+        f'https://prod-scores-api.ausopen.com/year/2021/period/MD/day/{(datetime.date.today() - datetime.date(2021,2,7)).days}/results',
     )
     data = r.json()
 
@@ -56,11 +56,10 @@ def check_game_finished():
     for match in completed_matches:
         if match['match_id'] not in game_notified:
             notify_game(match, game_notified)
+            # pass
 
 
 def check_one_box():
-    xpath = '//*[@id="rso"]/div[1]/div/div/div/div[1]/div/div/div/div/div[2]/div/g-tabbed-carousel/span/span/g-tabs/div/div/a[{tab_index}]'
-
     driver.get(TENNIS_URL)
     time.sleep(3)
     game_notified = get_game_notified()
@@ -126,4 +125,4 @@ if __name__ == '__main__':
     driver = webdriver.Chrome('chromedriver.exe')
     while True:
         main()
-        time.sleep(30)
+        time.sleep(10)
