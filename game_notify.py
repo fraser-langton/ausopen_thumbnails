@@ -16,8 +16,8 @@ BaseEmail.host, BaseEmail.port = 'smtp.gmail.com', 587
 BaseEmail.connect()
 BaseEmail._server.login('fraserlangton56@gmail.com', 'Tennis2020')
 
-# RECIPIENTS = 'flangton@tennis.com.au,rchand@tennis.com.au'
-RECIPIENTS = 'flangton@tennis.com.au'
+RECIPIENTS = 'flangton@tennis.com.au,rchand@tennis.com.au'
+# RECIPIENTS = 'flangton@tennis.com.au'
 
 TENNIS_URL = 'https://www.google.com/search?q=tennis'
 

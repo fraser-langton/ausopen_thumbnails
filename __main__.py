@@ -12,7 +12,7 @@ import atexit
 
 import pyautogui
 
-from merge_photos import get_img_by_name, read_csv, write_csv, read_day_csv
+from merge_photos import get_image_by_name, read_csv, write_csv, read_day_csv
 
 output_data = [['match_id', 'link', 'wp_link']]
 
@@ -53,8 +53,8 @@ def main():
         try:
             driver.create_graphic()
             ask = False
-            t1_img_name = get_img_by_name(t1, files, mappings, ask=ask)
-            t2_img_name = get_img_by_name(t2, files, mappings, ask=ask)
+            t1_img_name = get_image_by_name(t1, files, mappings, ask=ask)
+            t2_img_name = get_image_by_name(t2, files, mappings, ask=ask)
             time.sleep(5)
 
             if t1_img_name is None or t2_img_name is None:

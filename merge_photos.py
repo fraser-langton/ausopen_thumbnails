@@ -1,3 +1,4 @@
+import difflib
 import json
 import os
 from PIL import Image, ImageFont, ImageDraw
@@ -30,8 +31,8 @@ def main():
     ) in data:
         t1, t2 = (t1_p1_l, t1_p1_f, t1_p2_l, t1_p2_f), (t2_p1_l, t2_p1_f, t2_p2_l, t2_p2_f)
 
-        p1_img_name = get_img_by_name(t1, files, mappings)
-        p2_img_name = get_img_by_name(t2, files, mappings)
+        p1_img_name = get_image_by_name(t1, files, mappings)
+        p2_img_name = get_image_by_name(t2, files, mappings)
 
         p1_img = Image.open(f'imgs/{p1_img_name}')
         p2_img = Image.open(f'imgs/{p2_img_name}')
@@ -53,7 +54,7 @@ def read_csv(filename):
 
 
 def read_day_csv(day):
-    filename = f'Input/Schedule_202102{7+int(day):02}.csv'
+    filename = f'Input/Schedule_202102{7 + int(day):02}.csv'
     data = read_csv(filename)
     for row in data:
         row += [''] * (22 - len(row))
@@ -118,7 +119,7 @@ def key(team):
     return k
 
 
-def get_img_by_name(team, files, mappings, ask=True):
+def get_image_by_name(team, files, mappings, ask=True):
     p1_l, p1_f, p2_l, p2_f = team
 
     img_name = mappings.get(key(team), None)
@@ -135,12 +136,14 @@ def get_img_by_name(team, files, mappings, ask=True):
         img_name = img_names[int(input(f'Which file for {key(team)}'))] if ask else None
 
     elif len(img_names) < 1:
-        img_names = [f for f in files if p1_f.lower() in f.lower() or p1_l.lower() in f.lower()]
-        if p2_f:
-            img_names += [f for f in files if p2_f.lower() in f.lower() or p2_l.lower() in f.lower()]
-
-        if len(img_names) > 0:
-            print(img_names)
+        # img_names = [f for f in files if p1_f.lower() in f.lower() or p1_l.lower() in f.lower()]
+        # if p2_f:
+        #     img_names += [f for f in files if p2_f.lower() in f.lower() or p2_l.lower() in f.lower()]
+        potential_matches = difflib.get_close_matches(f"{p1_l} {p1_f}", files, n=5)
+        if potential_matches:
+            print(f"potential matches:")
+            for m in difflib.get_close_matches(f"{p1_l} {p1_f}", files, n=5):
+                print(f'\t{m}')
         img_name = str(input(f'Enter EXACT filename for {key(team)}')) if ask else None
         if not img_name:
             return None
@@ -155,12 +158,98 @@ def get_img_by_name(team, files, mappings, ask=True):
     return img_name
 
 
+def get_image_by_id(player, files, mappings, ask=False):
+    example_player = {
+        'uuid': '2c09c0ce-a47d-459d-addd-1490477b449b',
+        'nid': '5729',
+        'player_id': 'ATPA853',
+        'tour_id': 'ATPA853',
+        'first_name': 'Marcelo',
+        'last_name': 'Arevalo',
+        'full_name': 'Marcelo Arevalo',
+        'short_name': 'M. Arevalo',
+        'gender': 'M',
+        'nationality': {
+            'uuid': '78ab5d65-9bbd-4bc2-b8c2-acba8a2fadbc',
+            'name': 'El Salvador',
+            'code': 'ESA',
+            'flag': {
+                'url': 'https://ausopen.com/sites/default/files/styles/flag_icon/public/2017-11/ESA_f.gif?itok=PaQRWrDN'
+            }
+        },
+        'hero_image': {
+            'url': 'https://ausopen.com/sites/default/files/styles/420x/public/2019_Marcelo_Arevalo_pp_h.png?itok=J3f3xvKI'
+        },
+        'hero_image_144': {
+            'url': 'https://ausopen.com/sites/default/files/styles/144x144/public/2019_Marcelo_Arevalo_pp_h.png?itok=hBo3Bb9f'
+        },
+        'hero_image_240': {
+            'url': 'https://ausopen.com/sites/default/files/styles/240x240/public/2019_Marcelo_Arevalo_pp_h.png?itok=P6AuOrPE'
+        },
+        'profile_image_104': {
+            'url': 'https://ausopen.com/sites/default/files/styles/104x104/public/2019_Marcelo_Arevalo_pp_h.png?itok=IzZE-Vjf'
+        },
+        'profile_image_32': {
+            'url': 'https://ausopen.com/sites/default/files/styles/32x32/public/2019_Marcelo_Arevalo_pp_h.png?itok=GEyFaYFP'
+        },
+        'image': {
+            'url': 'https://ausopen.com/sites/default/files/styles/420x/public/2019_Marcelo_Arevalo_pp_t.png?itok=RPnUSZkF'
+        },
+        'player_icon': {
+            'url': 'https://ausopen.com/sites/default/files/styles/96x96/public/2019_Marcelo_Arevalo_pp_t.png?itok=uKzs6WqD'
+        },
+        'rankings': [
+            {
+                'event': 'cb9599e0-4478-4b4e-98aa-996a54313df6',
+                'ranking': '452'
+            },
+            {
+                'event': '7639a625-a364-40e7-b958-5dac8a23d3f8',
+                'ranking': '52'
+            }
+        ],
+        'birth_place': 'Sonsonate, El Salvador',
+        'dob': 'Sonsonate, El Salvador',
+        'career_loses': '20',
+        'career_prize_money': '746077',
+        'career_titles': '0',
+        'career_wins': '26',
+        'coach': 'Yari Bernardo & Carlos Teixeira',
+        'player_height': '76',
+        'player_weight': '190',
+        'turned_pro': '2012',
+        'resident_of': 'Sonsonate, El Salvador',
+        'events_contested': [
+            'a86451f8-5e18-45f8-9f5d-a8f8f3a2bfa2',
+            'b7b29bc2-c6ff-485a-b7df-e7fa50d69a81',
+            '2cb3e363-b3db-4332-a05e-b25b54e9b45f',
+            'b98061a1-47b2-431b-b6f4-5f75ec95b4a4'
+        ],
+        'profile_link': 'https://ausopen.com/players/el-salvador/marcelo-arevalo'
+    }
+    image_name = mappings.get(player['player_id'], None)
+    if image_name is not None:
+        return image_name
+
+    team = player['last_name'], player['first_name'], None, None
+
+    with open('mappings.json') as f:
+        name_mappings = json.load(f)
+    name_mappings = {}
+    img_name = get_image_by_name(team, files, name_mappings, ask=ask)
+    mappings[player['player_id']] = img_name
+
+    return img_name
+
+
 def highlight(element, effect_time=3, color="blue", border=5):
     """Highlights (blinks) a Selenium Webdriver element"""
     driver = element._parent
+
     def apply_style(s):
         driver.execute_script("arguments[0].setAttribute('style', arguments[1]);",
                               element, s)
+
     original_style = element.get_attribute('style')
     apply_style("border: {0}px solid {1};".format(border, color))
     time.sleep(effect_time)
