@@ -18,6 +18,7 @@ fetch("https://prod-scores-api.ausopen.com/year/2021/period/MD/day/5/schedule", 
 """
 import json
 import os
+import urllib
 
 import requests
 
@@ -42,6 +43,8 @@ def get_matches(day):
     for court in data['schedule']['courts']:
         for session in court['sessions']:
             for match in session['activities']:
+                if match.get('activity_name', None) == 'MATCH TBA':
+                    continue
                 match['players'] = []
                 match_teams = [teams.get(team['team_id']) for team in match['teams']]
                 for team in match_teams:
@@ -125,7 +128,8 @@ def check_match():
         print(
             data['matchId'],
             " / ".join([f"{p['first_name']} {p['last_name']}" for p in match_players]),
-            '-', " / ".join([str(i) for i in match_players_images])
+            '-', " / ".join([f"https://raw.githubusercontent.com/fraser-langton/ausopen_thumbnails/master/imgs/{urllib.parse.quote(i)}" for i in match_players_images if i])
+
         )
 
 

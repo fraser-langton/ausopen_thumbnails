@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import time
+import urllib
 
 import selenium
 from selenium import webdriver
@@ -99,7 +100,6 @@ def main():
         json.dump(mappings, f)
 
 
-
 def new_main():
     day = input("Day: ")
 
@@ -112,6 +112,12 @@ def new_main():
     with open('mappings.json') as f:
         mappings = json.load(f)
 
+    with open('clipro_links.json') as f:
+        clipro_links = json.load(f)
+
+    with open('wp_links.json') as f:
+        wp_links = json.load(f)
+
     files = [str(f) for f in os.listdir('imgs')]
     try:
         os.mkdir(f'Output/Day {day}')
@@ -119,7 +125,7 @@ def new_main():
         pass
 
     data = get_matches(day)
-    for match in data:
+    for match in data.values():
         t1_p1_l, t1_p1_f = match['players'][0][0]['last_name'], match['players'][0][0]['first_name']
         try:
             t1_p2_l, t1_p2_f = match['players'][0][1]['last_name'], match['players'][0][1]['first_name']
@@ -133,13 +139,15 @@ def new_main():
 
         t1, t2 = (t1_p1_l, t1_p1_f, t1_p2_l, t1_p2_f), (t2_p1_l, t2_p1_f, t2_p2_l, t2_p2_f)
 
+        photo_link = clipro_links.get(match['match_id'], None)
+        wp_link = wp_links.get(match['match_id'], None)
+
         if photo_link or wp_link:
-            output_data.append([a1, a2, a3, a4, a5, match_id,
-                                t1_p1_l, t1_p1_f, a6, t1_p2_f, t1_p2_l, a7,
-                                t2_p1_l, t2_p1_f, a8, t2_p2_f, t2_p2_l, a9,
-                                a11, a12, photo_link, wp_link])
+            output_data.append([match['match_id'],
+                                t1_p1_l, t1_p1_f, t1_p2_f, t1_p2_l,
+                                t2_p1_l, t2_p1_f, t2_p2_f, t2_p2_l,
+                                photo_link, wp_link])
             continue
-            # continue
         try:
             driver.create_graphic()
             ask = False
@@ -148,25 +156,49 @@ def new_main():
             time.sleep(5)
 
             if t1_img_name is None or t2_img_name is None:
-                output_data.append([a1, a2, a3, a4, a5, match_id,
-                                    t1_p1_l, t1_p1_f, a6, t1_p2_f, t1_p2_l, a7,
-                                    t2_p1_l, t2_p1_f, a8, t2_p2_f, t2_p2_l, a9,
-                                    a11, a12, 'https://www.tennis.com.au/doc/ao2021-placeholder', None])
+                output_data.append([match['match_id'],
+                                    t1_p1_l, t1_p1_f, t1_p2_f, t1_p2_l,
+                                    t2_p1_l, t2_p1_f, t2_p2_f, t2_p2_l,
+                                    'https://www.tennis.com.au/doc/ao2021-placeholder', None])
                 continue
 
+            # Left name
             driver.input_by_xpath('//*[@id="App"]/div[2]/div/div[5]/div/div[2]/div/div[1]/input', t1_p1_l)
 
+            # Right name
             driver.input_by_xpath('//*[@id="App"]/div[2]/div/div[5]/div/div[2]/div/div[2]/input', t2_p1_l)
 
-            round_ = match_id[2]
+            # Round
+            round_ = match['match_id'][2]
             driver.input_by_xpath('//*[@id="App"]/div[2]/div/div[5]/div/div[2]/div/div[3]/input', f'Round {round_}')
 
-            driver.input_file_by_xpath(
-                '//*[@id="App"]/div[2]/div/div[6]/div[1]/div/div[2]/div/div[1]/div[2]/button', t1_img_name)
-            driver.input_file_by_xpath(
-                '//*[@id="App"]/div[2]/div/div[6]/div[1]/div/div[2]/div/div[2]/div[2]/button', t2_img_name)
-            time.sleep(20)
+            # Left player image
+            driver.click_by_xpath('//*[@id="App"]/div[2]/div/div[6]/div[1]/div/div[2]/div/div[1]/div[2]/span/button')
+            driver.input_by_xpath(
+                '//*[@id="poppers"]/div/div/input',
+                f"https://raw.githubusercontent.com/fraser-langton/ausopen_thumbnails/master/imgs/{urllib.parse.quote(t1_img_name)}"
+            )
+            driver.click_by_xpath('//*[@id="poppers"]/div/div/button')
+            time.sleep(7)
+            driver.click_by_xpath('//*[@id="App"]/div[2]/div/div[1]/div/div/div[2]/div[3]/button[2]')
 
+            # Right player image
+            driver.click_by_xpath('//*[@id="App"]/div[2]/div/div[6]/div[1]/div/div[2]/div/div[2]/div[2]/span/button')
+            driver.input_by_xpath(
+                '//*[@id="poppers"]/div/div/input',
+                f"https://raw.githubusercontent.com/fraser-langton/ausopen_thumbnails/master/imgs/{urllib.parse.quote(t2_img_name)}"
+            )
+            driver.click_by_xpath('//*[@id="poppers"]/div/div/button')
+            time.sleep(7)
+            driver.click_by_xpath('//*[@id="App"]/div[2]/div/div[1]/div/div/div[2]/div[3]/button[2]')
+
+            # driver.input_file_by_xpath(
+            #     '//*[@id="App"]/div[2]/div/div[6]/div[1]/div/div[2]/div/div[1]/div[2]/button', t1_img_name)
+            # driver.input_file_by_xpath(
+            #     '//*[@id="App"]/div[2]/div/div[6]/div[1]/div/div[2]/div/div[2]/div[2]/button', t2_img_name)
+            # time.sleep(20)
+
+            time.sleep(4)
             driver.click_by_xpath('//*[@id="App"]/div[2]/div/div[6]/div[2]/button[2]')
             time.sleep(20)
 
@@ -177,10 +209,14 @@ def new_main():
             url = None
             print(e, file=sys.stderr)
 
-        output_data.append([a1, a2, a3, a4, a5, match_id,
-                            t1_p1_l, t1_p1_f, a6, t1_p2_f, t1_p2_l, a7,
-                            t2_p1_l, t2_p1_f, a8, t2_p2_f, t2_p2_l, a9,
-                            a11, a12, url, None])
+        clipro_links[match['match_id']] = url
+        with open('clipro_links.json', 'w') as f:
+            json.dump(clipro_links, f)
+
+        output_data.append([match['match_id'],
+                            t1_p1_l, t1_p1_f, t1_p2_f, t1_p2_l,
+                            t2_p1_l, t2_p1_f, t2_p2_f, t2_p2_l,
+                            url, wp_link])
 
     write_csv(f'Output/Clipro day {day}.csv', output_data)
 
@@ -255,7 +291,7 @@ def exit_handler():
 if __name__ == '__main__':
     atexit.register(exit_handler)
     try:
-        main()
+        new_main()
     except Exception as e:
         print(e, file=sys.stderr)
         write_csv('output_crashed.csv', output_data)

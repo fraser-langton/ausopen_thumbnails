@@ -1,4 +1,5 @@
 import atexit
+import json
 import os
 import sys
 import time
@@ -60,6 +61,38 @@ def main():
     write_csv(f'Output/Wordpress day {day}.csv', output_data)
 
 
+def new_main():
+    day = input('Day: ')
+    driver = Driver()
+    driver.login('flangton', 'jcQX3boISY9h')
+
+    with open('clipro_links.json') as f:
+        clipro_links = json.load(f)
+
+    with open('wp_links.json') as f:
+        wp_links = json.load(f)
+
+    for match_id, clipro_link in clipro_links.items():
+        file = f'{match_id}.png'
+        filepath = f'Output/Day {day}/{file}'
+        r = requests.get(clipro_link)
+        with open(filepath, 'wb') as f:
+            f.write(r.content)
+            print(f'{match_id}.png downloaded')
+
+        r = requests.get(f'https://www.tennis.com.au/doc/ao2021-{match_id}')
+        if r.status_code == 200:
+            driver.update_doc(match_id, filepath, day)
+        elif r.status_code == 404:
+            driver.new_doc(match_id, filepath, day)
+        link = driver.get_link()
+
+        wp_links[match_id] = link
+
+        with open('wp_links.json', 'w') as f:
+            json.dump(wp_links, f)
+
+
 class Driver:
     def __init__(self):
         chromeOptions = webdriver.ChromeOptions()
@@ -104,7 +137,8 @@ class Driver:
         self.publish()
 
     def update_doc(self, match_id, filepath, day):
-        self.driver.get(f'https://www.tennis.com.au/wp-admin/edit.php?s={match_id}&post_status=all&post_type=document&action=-1&m=0&paged=1&action2=-1')
+        self.driver.get(
+            f'https://www.tennis.com.au/wp-admin/edit.php?s={match_id}&post_status=all&post_type=document&action=-1&m=0&paged=1&action2=-1')
         time.sleep(4)
 
         doc_elem = self.driver.find_element_by_class_name('row-title')
@@ -137,7 +171,7 @@ def exit_handler():
 if __name__ == '__main__':
     atexit.register(exit_handler)
     try:
-        main()
+        new_main()
     except Exception as e:
         print(e, file=sys.stderr)
         write_csv('output_wp_crashed.csv', output_data)

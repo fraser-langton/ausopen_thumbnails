@@ -45,5 +45,16 @@ def new_main():
         json.dump(mappings, f)
 
 
+def get_image():
+    first_name = input('F Name: ')
+    last_name = input('L Name: ')
+
+    with open('imgs/player-photo-mappings.json') as f:
+        mappings = json.load(f)
+    files = [str(f) for f in os.listdir('imgs')]
+    return get_image_by_name((last_name, first_name, None, None), files, mappings, ask=True)
+
+
 if __name__ == '__main__':
-    new_main()
+    print(get_image())
+    # new_main()
