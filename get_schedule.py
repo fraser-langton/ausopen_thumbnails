@@ -31,6 +31,27 @@ def get_schedule(day):
     return data
 
 
+def get_matches(day):
+    data = get_schedule(day)
+
+    matches = {}
+
+    teams = {i['uuid']: i for i in data['teams']}
+    players = {i['uuid']: i for i in data['players']}
+
+    for court in data['schedule']['courts']:
+        for session in court['sessions']:
+            for match in session['activities']:
+                match['players'] = []
+                match_teams = [teams.get(team['team_id']) for team in match['teams']]
+                for team in match_teams:
+                    match_players = [players.get(p) for p in team['players']]
+                    match['players'].append(match_players)
+                matches[match['match_id']] = match
+
+    return matches
+
+
 def check_images(data):
     with open('data_temp.json', 'w') as f:
         json.dump(data, f)
@@ -69,6 +90,16 @@ def check_images_by_winners():
     #     data = json.load(f)
     data = get_schedule(int(day) - 2)
 
+    for court in data['schedule']['courts']:
+        for session in court['sessions']:
+            for match in session['activities']:
+                t1_score = len([i for i in match['teams'][0]['score'] if i['winner']])
+                t2_score = len([i for i in match['teams'][1]['score'] if i['winner']])
+                if t1_score > t2_score:
+                    del match['teams'][1]
+                else:
+                    del match['teams'][0]
+
     check_images(data)
 
 
@@ -96,10 +127,10 @@ def check_match():
             " / ".join([f"{p['first_name']} {p['last_name']}" for p in match_players]),
             '-', " / ".join([str(i) for i in match_players_images])
         )
-    x = 1
 
 
 if __name__ == '__main__':
+    # get_matches(6)
     # check_match()
-    check_images_by_schedule()
-    # check_images_by_winners()
+    # check_images_by_schedule()
+    check_images_by_winners()
