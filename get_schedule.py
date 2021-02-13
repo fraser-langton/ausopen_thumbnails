@@ -31,19 +31,14 @@ def get_schedule(day):
     return data
 
 
-def check_images():
-    day = input("Day: ")
-    print()
-    # with open('data_temp.json') as f:
-    #     data = json.load(f)
-    data = get_schedule(day)
+def check_images(data):
     with open('data_temp.json', 'w') as f:
         json.dump(data, f)
 
     teams = {i['uuid']: i for i in data['teams']}
     players = {i['uuid']: i for i in data['players']}
 
-    with open('player-photo-mappings.json') as f:
+    with open('imgs/player-photo-mappings.json') as f:
         mapping = json.load(f)
 
     files = [str(f) for f in os.listdir('imgs')]
@@ -60,12 +55,29 @@ def check_images():
                         print(match['match_id'], match_players_names)
 
 
+def check_images_by_schedule():
+    day = input("Day: ")
+    # with open('data_temp.json') as f:
+    #     data = json.load(f)
+    data = get_schedule(day)
+    check_images(data)
+
+
+def check_images_by_winners():
+    day = input("Day: ")
+    # with open('data_temp.json') as f:
+    #     data = json.load(f)
+    data = get_schedule(int(day) - 2)
+
+    check_images(data)
+
+
 def check_match():
     match_id = input('Match ID: ').strip().upper()
     r = requests.get(
         f'https://itp-ao.infosys-platforms.com/api/match-beats/data/year/2021/eventId/580/matchId/{match_id}')
     data = r.json()
-    with open('player-photo-mappings.json') as f:
+    with open('imgs/player-photo-mappings.json') as f:
         mapping = json.load(f)
     files = [str(f) for f in os.listdir('imgs')]
     for team in range(1, 3):
@@ -89,4 +101,5 @@ def check_match():
 
 if __name__ == '__main__':
     # check_match()
-    check_images()
+    check_images_by_schedule()
+    # check_images_by_winners()

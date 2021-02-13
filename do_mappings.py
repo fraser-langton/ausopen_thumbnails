@@ -34,14 +34,14 @@ def new_main():
     day = input('Day: ')
 
     schedule = get_schedule(day)
-    with open('player-photo-mappings.json') as f:
+    with open('imgs/player-photo-mappings.json') as f:
         mappings = json.load(f)
     files = [str(f) for f in os.listdir('imgs')]
 
     for player in schedule['players']:
         get_image_by_id(player, files, mappings, ask=True)
 
-    with open('player-photo-mappings.json', 'w') as f:
+    with open('imgs/player-photo-mappings.json', 'w') as f:
         json.dump(mappings, f)
 
 
