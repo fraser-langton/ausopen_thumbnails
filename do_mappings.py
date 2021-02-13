@@ -1,9 +1,8 @@
 import json
 import os
 
-from merge_photos import read_csv, get_image_by_name, read_day_csv, get_image_by_id
-from schedule.get_schedule import get_schedule
-import difflib
+from merge_photos import get_image_by_name, read_day_csv, get_image_by_id
+from get_schedule import get_schedule
 
 
 def main():
@@ -21,9 +20,11 @@ def main():
             *_, photo_link, wp_link
     ) in data:
         t1, t2 = (t1_p1_l, t1_p1_f, t1_p2_l, t1_p2_f), (t2_p1_l, t2_p1_f, t2_p2_l, t2_p2_f)
-        ask = True
-        get_image_by_name(t1, files, mappings, ask=ask)
-        get_image_by_name(t2, files, mappings, ask=ask)
+        ask = False
+        i1=get_image_by_name(t1, files, mappings, ask=ask)
+        i2=get_image_by_name(t2, files, mappings, ask=ask)
+        print(t1, i1)
+        print(t2, i2)
 
     with open('mappings.json', 'w') as f:
         json.dump(mappings, f)
@@ -33,14 +34,14 @@ def new_main():
     day = input('Day: ')
 
     schedule = get_schedule(day)
-    with open('schedule/player-photo-mappings.json') as f:
+    with open('player-photo-mappings.json') as f:
         mappings = json.load(f)
     files = [str(f) for f in os.listdir('imgs')]
 
     for player in schedule['players']:
         get_image_by_id(player, files, mappings, ask=True)
 
-    with open('schedule/player-photo-mappings.json', 'w') as f:
+    with open('player-photo-mappings.json', 'w') as f:
         json.dump(mappings, f)
 
 

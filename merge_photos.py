@@ -136,19 +136,17 @@ def get_image_by_name(team, files, mappings, ask=True):
         img_name = img_names[int(input(f'Which file for {key(team)}'))] if ask else None
 
     elif len(img_names) < 1:
-        # img_names = [f for f in files if p1_f.lower() in f.lower() or p1_l.lower() in f.lower()]
-        # if p2_f:
-        #     img_names += [f for f in files if p2_f.lower() in f.lower() or p2_l.lower() in f.lower()]
-        potential_matches = difflib.get_close_matches(f"{p1_l} {p1_f}", files, n=5)
+        potential_matches = [f for f in files if p1_f.lower() in f.lower() or p1_l.lower() in f.lower()]
+        if p2_f:
+            potential_matches += [f for f in files if p2_f.lower() in f.lower() or p2_l.lower() in f.lower()]
+        potential_matches += difflib.get_close_matches(f"{p1_f}_{p1_l}".upper(), files, n=3)
         if potential_matches:
-            print(f"potential matches:")
-            for m in difflib.get_close_matches(f"{p1_l} {p1_f}", files, n=5):
-                print(f'\t{m}')
-        img_name = str(input(f'Enter EXACT filename for {key(team)}')) if ask else None
-        if not img_name:
-            return None
-        else:
-            img_name = img_names[0]
+            if ask:
+                print(f"potential matches:")
+                for m in potential_matches:
+                    print(f'\t{m}')
+            img_name = str(input(f'Enter EXACT filename for {key(team)}')) if ask else None
+            img_name = img_name if img_name else None
 
     else:
         img_name = img_names[0]
