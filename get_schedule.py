@@ -88,5 +88,5 @@ def check_match():
 
 
 if __name__ == '__main__':
-    check_match()
-    # check_images()
+    # check_match()
+    check_images()
