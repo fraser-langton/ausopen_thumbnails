@@ -71,6 +71,8 @@ def check_images(data):
     for court in data['schedule']['courts']:
         for session in court['sessions']:
             for match in session['activities']:
+                if match.get('activity_name', None) == 'MATCH TBA':
+                    continue
                 match_teams = [teams.get(team['team_id']) for team in match['teams']]
                 for team in match_teams:
                     match_players = [players.get(p) for p in team['players']]
