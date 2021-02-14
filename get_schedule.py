@@ -28,7 +28,8 @@ from merge_photos import get_image_by_id
 def get_schedule(day):
     r = requests.get(f"https://prod-scores-api.ausopen.com/year/2021/period/MD/day/{day}/schedule")
     data = r.json()
-
+    if 'error' in data.keys():
+        raise Exception(f'Schedule for day {day} not released yet')
     return data
 
 
@@ -136,5 +137,5 @@ def check_match():
 if __name__ == '__main__':
     # get_matches(6)
     # check_match()
-    # check_images_by_schedule()
-    check_images_by_winners()
+    check_images_by_schedule()
+    # check_images_by_winners()

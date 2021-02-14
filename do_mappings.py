@@ -56,5 +56,5 @@ def get_image():
 
 
 if __name__ == '__main__':
-    print(get_image())
-    # new_main()
+    # print(get_image())
+    new_main()
