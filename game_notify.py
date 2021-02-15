@@ -16,7 +16,7 @@ BaseEmail.host, BaseEmail.port = 'smtp.gmail.com', 587
 BaseEmail.connect()
 BaseEmail._server.login('fraserlangton56@gmail.com', 'Tennis2020')
 
-RECIPIENTS = 'flangton@tennis.com.au,rchand@tennis.com.au'
+RECIPIENTS = 'flangton@tennis.com.au,rchand@tennis.com.au,lee.maziarz21@gmail.com'
 # RECIPIENTS = 'flangton@tennis.com.au'
 
 TENNIS_URL = 'https://www.google.com/search?q=tennis'
@@ -30,7 +30,7 @@ def main():
 
 def get_game_notified():
     try:
-        game_notified = [i[0] for i in read_csv('game_notified.csv')]
+        game_notified = read_csv('game_notified.csv')
     except IndexError:
         game_notified = []
     return game_notified
@@ -38,10 +38,14 @@ def get_game_notified():
 
 def get_onebox_notified():
     try:
-        onebox_notified = [i[0] for i in read_csv('onebox_notified.csv')]
+        onebox_notified = read_csv('onebox_notified.csv')
     except IndexError:
         onebox_notified = []
     return onebox_notified
+
+
+def get_match_ids(lst):
+    return [i[0] for i in lst]
 
 
 def check_game_finished():
@@ -54,7 +58,7 @@ def check_game_finished():
     game_notified = get_game_notified()
 
     for match in completed_matches:
-        if match['match_id'] not in game_notified:
+        if match['match_id'] not in get_match_ids(game_notified):
             notify_game(match, game_notified)
             # pass
 
@@ -78,8 +82,8 @@ def check_one_box():
         time.sleep(1)
         page_source += driver.page_source
 
-    for match_id in game_notified:
-        if match_id in onebox_notified:
+    for match_id in get_match_ids(game_notified):
+        if match_id in get_match_ids(onebox_notified):
             continue
         if match_id in page_source.upper():
             notify_onebox(match_id, onebox_notified)
@@ -99,8 +103,8 @@ def notify_game(match, game_notified):
         BaseEmail.connect()
         BaseEmail._server.login('fraserlangton56@gmail.com', 'Tennis2020')
         email.send()
-    game_notified.append(match['match_id'])
-    write_csv('game_notified.csv', [[i] for i in game_notified])
+    game_notified.append([match['match_id'], datetime.datetime.now()])
+    write_csv('game_notified.csv', game_notified)
 
 
 def notify_onebox(match_id, onebox_notified):
@@ -117,8 +121,8 @@ def notify_onebox(match_id, onebox_notified):
         BaseEmail.connect()
         BaseEmail._server.login('fraserlangton56@gmail.com', 'Tennis2020')
         email.send()
-    onebox_notified.append(match_id)
-    write_csv('onebox_notified.csv', [[i] for i in onebox_notified])
+    onebox_notified.append([match_id, datetime.datetime.now()])
+    write_csv('onebox_notified.csv', onebox_notified)
 
 
 if __name__ == '__main__':

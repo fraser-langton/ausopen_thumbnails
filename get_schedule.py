@@ -47,7 +47,7 @@ def get_matches(day):
                 if match.get('activity_name', None) == 'MATCH TBA':
                     continue
                 match['players'] = []
-                match_teams = [teams.get(team['team_id']) for team in match['teams']]
+                match_teams = [teams[team['team_id']] for team in match['teams'] if team]
                 for team in match_teams:
                     match_players = [players.get(p) for p in team['players']]
                     match['players'].append(match_players)
@@ -73,9 +73,9 @@ def check_images(data):
             for match in session['activities']:
                 if match.get('activity_name', None) == 'MATCH TBA':
                     continue
-                match_teams = [teams.get(team['team_id']) for team in match['teams']]
+                match_teams = [teams[team['team_id']] for team in match['teams'] if team]
                 for team in match_teams:
-                    match_players = [players.get(p) for p in team['players']]
+                    match_players = [players[p] for p in team['players']]
                     match_players_images = [get_image_by_id(p, files, mapping) for p in match_players]
                     if all([img is None for img in match_players_images]):
                         match_players_names = " / ".join([f"{p['first_name']} {p['last_name']}" for p in match_players])

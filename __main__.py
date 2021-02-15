@@ -126,6 +126,9 @@ def new_main():
 
     data = get_matches(day)
     for match in data.values():
+        if not ('WS' in match['match_id'] or 'MS' in match['match_id']):
+            continue
+
         t1_p1_l, t1_p1_f = match['players'][0][0]['last_name'], match['players'][0][0]['first_name']
         try:
             t1_p2_l, t1_p2_f = match['players'][0][1]['last_name'], match['players'][0][1]['first_name']
@@ -169,7 +172,7 @@ def new_main():
             driver.input_by_xpath('//*[@id="App"]/div[2]/div/div[5]/div/div[2]/div/div[2]/input', t2_p1_l)
 
             # Round
-            round_ = match['match_id'][2]
+            round_ = get_round(match['match_id'])
             driver.input_by_xpath('//*[@id="App"]/div[2]/div/div[5]/div/div[2]/div/div[3]/input', f'Round {round_}')
 
             # Left player image
@@ -222,6 +225,17 @@ def new_main():
 
     with open('mappings.json', 'w') as f:
         json.dump(mappings, f)
+
+
+def get_round(match_id):
+    r = int(match_id[2])
+    if r > 4:
+        return {
+            5: 'QF',
+            6: 'SF',
+            7: 'Final'
+        }[r]
+    return r
 
 
 class Driver:

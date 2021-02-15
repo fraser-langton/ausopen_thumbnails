@@ -12,6 +12,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
+from get_schedule import get_matches
 from merge_photos import read_csv, write_csv, read_day_csv
 
 output_data = [['match_id', 'link', 'wp_link']]
@@ -65,6 +66,7 @@ def new_main():
     day = input('Day: ')
     driver = Driver()
     driver.login('flangton', 'jcQX3boISY9h')
+    data = get_matches(day)
 
     with open('clipro_links.json') as f:
         clipro_links = json.load(f)
@@ -72,7 +74,16 @@ def new_main():
     with open('wp_links.json') as f:
         wp_links = json.load(f)
 
-    for match_id, clipro_link in clipro_links.items():
+    for match_id, match in data.items():
+        if not ('WS' in match['match_id'] or 'MS' in match['match_id']):
+            continue
+
+        clipro_link = clipro_links.get(match_id, None)
+        wp_link = wp_links.get(match_id, None)
+        if clipro_link is None:
+            print(match_id, 'clipro_link not found,', 'wp_link=', wp_link)
+            continue
+
         file = f'{match_id}.png'
         filepath = f'Output/Day {day}/{file}'
         r = requests.get(clipro_link)
