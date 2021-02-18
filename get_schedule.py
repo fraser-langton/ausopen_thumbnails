@@ -44,10 +44,11 @@ def get_matches(day):
     for court in data['schedule']['courts']:
         for session in court['sessions']:
             for match in session['activities']:
-                if match.get('activity_name', None) == 'MATCH TBA':
-                    continue
+                match_id = match['match_id']
+                # if match.get('activity_name', '') == 'MATCH TBA':
+                #     continue
                 match['players'] = []
-                match_teams = [teams[team['team_id']] for team in match['teams'] if team]
+                match_teams = [teams[team['team_id']] for team in match['teams']]
                 for team in match_teams:
                     match_players = [players.get(p) for p in team['players']]
                     match['players'].append(match_players)
@@ -71,7 +72,7 @@ def check_images(data):
     for court in data['schedule']['courts']:
         for session in court['sessions']:
             for match in session['activities']:
-                if match.get('activity_name', None) == 'MATCH TBA':
+                if match.get('activity_name', '') == 'MATCH TBA':
                     continue
                 match_teams = [teams[team['team_id']] for team in match['teams'] if team]
                 for team in match_teams:

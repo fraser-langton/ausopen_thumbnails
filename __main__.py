@@ -173,7 +173,7 @@ def new_main():
 
             # Round
             round_ = get_round(match['match_id'])
-            driver.input_by_xpath('//*[@id="App"]/div[2]/div/div[5]/div/div[2]/div/div[3]/input', f'Round {round_}')
+            driver.input_by_xpath('//*[@id="App"]/div[2]/div/div[5]/div/div[2]/div/div[3]/input', f'{round_}')
 
             # Left player image
             driver.click_by_xpath('//*[@id="App"]/div[2]/div/div[6]/div[1]/div/div[2]/div/div[1]/div[2]/span/button')
@@ -235,7 +235,7 @@ def get_round(match_id):
             6: 'SF',
             7: 'Final'
         }[r]
-    return r
+    return f'Round {r}'
 
 
 class Driver:
